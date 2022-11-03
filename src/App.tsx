@@ -1,28 +1,38 @@
-import React, {FC, Suspense} from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import LoadingIndicator from "./components/LoadingIndicator";
+import React, {FC} from "react";
+import {Routes, Route} from "react-router-dom";
+import {QueryClient, QueryClientProvider} from "react-query";
+import {ReactQueryDevtools} from "react-query/devtools";
 import Home from "./pages/Home";
 import WatchLaterList from "./pages/WatchLaterList";
 import FavoriteMoviesList from "./pages/FavoriteMoviesList";
 import NotFoundPage from "./pages/NotFoundPage";
+import Layout from "./components/Layout";
+import "bootstrap/dist/css/bootstrap.min.css";
 
+
+const queryClient: QueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  }
+});
 
 const App: FC = () => {
   return (
-    <Router>
-      <Suspense fallback={<LoadingIndicator/>}>
+    <QueryClientProvider client={queryClient}>
+      <Layout>
         <Routes>
-          <Route path="/" element={<Home/>} errorElement={<NotFoundPage/>}/>
-          <Route path="/watch-later" element={<WatchLaterList/>} errorElement={<NotFoundPage/>}/>
-          <Route path="/favorites" element={<FavoriteMoviesList/>} errorElement={<NotFoundPage/>}/>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/watch-later" element={<WatchLaterList/>}/>
+          <Route path="/favorites" element={<FavoriteMoviesList/>}/>
+          <Route path="*" errorElement={<NotFoundPage/>}/>
         </Routes>
-      </Suspense>
-    </Router>
+      </Layout>
+      <ReactQueryDevtools initialIsOpen={true}/>
+    </QueryClientProvider>
   );
 };
 
